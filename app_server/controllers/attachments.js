@@ -15,8 +15,15 @@ attachmentsMethods.create = function(req, res){
 		attachment.url = `./attachments/${file.originalFilename}`;
 		attachment.name = file.originalFilename;
 
-		fs.renameSync(file.path, attachment.url, function(err) {
-			if(err) console.error(err.stack);
+		fs.readFile(file.path, function (err, data) {
+			if (err) throw err;
+			// Write the file
+			fs.writeFileSync(attachment.url, data);
+
+			// Delete the file
+			fs.unlink(file.path, function (err) {
+				if (err) throw err;
+			});
 		});
 
 		return attachment.save().then(attachment=>{
